@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+  pull_request:
+    branches:
+      - main
+      - master
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  quality:
+    name: Lint and Test
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Show Python version
+        run: python --version
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Check Python syntax
+        run: python -m compileall src evals
+
+      - name: Run Ruff
+        run: ruff check src tests evals
+
+      - name: Run unit tests
+        run: python -m pytest -c pytest.ini -v
+
+
+  docker:
+    name: Docker Build and Test
+
+    needs:
+      - quality
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: text-to-sql-agent:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Inspect Docker image
+        run: docker image inspect text-to-sql-agent:ci
+
+      - name: Run tests inside Docker
+        run: |
+          docker run --rm \
+            text-to-sql-agent:ci \
+            python -m pytest -c pytest.ini -v

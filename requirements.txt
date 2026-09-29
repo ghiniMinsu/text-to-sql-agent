@@ -1,0 +1,4 @@
+langgraph==1.2.11
+langchain-ollama==1.1.0
+sqlglot==30.18.0
+pytest==9.1.1

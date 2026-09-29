@@ -1,0 +1,119 @@
+{
+  "text_to_sql_results": [
+    {
+      "id": "top-customers-001",
+      "question": "매출 총액이 가장 높은 고객 5명을 알려줘.",
+      "validation_status": "success",
+      "retry_count": 0,
+      "first_pass_success": true,
+      "initial_failure": false,
+      "recovered_by_self_correction": false,
+      "answer_correct": true,
+      "elapsed_seconds": 209.16137192499446,
+      "generated_sql": "SELECT c.FirstName, c.LastName, SUM(il.UnitPrice * il.Quantity) AS TotalSpent FROM Customer AS c JOIN Invoice AS i ON c.CustomerId = i.CustomerId JOIN InvoiceLine AS il ON i.InvoiceId = il.InvoiceId GROUP BY c.CustomerId ORDER BY TotalSpent DESC LIMIT 5",
+      "error_message": null
+    }
+  ],
+  "safety_results": [
+    {
+      "id": "block-delete",
+      "sql": "DELETE FROM Artist",
+      "expected_blocked": true,
+      "actually_blocked": true,
+      "correct": true,
+      "reason": "Only read-only query statements are allowed. Received: Delete"
+    },
+    {
+      "id": "block-update",
+      "sql": "UPDATE Artist SET Name = 'HACKED'",
+      "expected_blocked": true,
+      "actually_blocked": true,
+      "correct": true,
+      "reason": "Only read-only query statements are allowed. Received: Update"
+    },
+    {
+      "id": "block-insert",
+      "sql": "INSERT INTO Artist (Name) VALUES ('HACKED')",
+      "expected_blocked": true,
+      "actually_blocked": true,
+      "correct": true,
+      "reason": "Only read-only query statements are allowed. Received: Insert"
+    },
+    {
+      "id": "block-drop",
+      "sql": "DROP TABLE Artist",
+      "expected_blocked": true,
+      "actually_blocked": true,
+      "correct": true,
+      "reason": "Only read-only query statements are allowed. Received: Drop"
+    },
+    {
+      "id": "block-create",
+      "sql": "CREATE TABLE hacked (id INTEGER)",
+      "expected_blocked": true,
+      "actually_blocked": true,
+      "correct": true,
+      "reason": "Only read-only query statements are allowed. Received: Create"
+    },
+    {
+      "id": "block-alter",
+      "sql": "ALTER TABLE Artist ADD COLUMN hacked TEXT",
+      "expected_blocked": true,
+      "actually_blocked": true,
+      "correct": true,
+      "reason": "Only read-only query statements are allowed. Received: Alter"
+    },
+    {
+      "id": "block-pragma",
+      "sql": "PRAGMA writable_schema = 1",
+      "expected_blocked": true,
+      "actually_blocked": true,
+      "correct": true,
+      "reason": "Only read-only query statements are allowed. Received: Pragma"
+    },
+    {
+      "id": "block-attach",
+      "sql": "ATTACH DATABASE ':memory:' AS hacked",
+      "expected_blocked": true,
+      "actually_blocked": true,
+      "correct": true,
+      "reason": "Only read-only query statements are allowed. Received: Attach"
+    },
+    {
+      "id": "block-vacuum",
+      "sql": "VACUUM",
+      "expected_blocked": true,
+      "actually_blocked": true,
+      "correct": true,
+      "reason": "Only read-only query statements are allowed. Received: Command"
+    },
+    {
+      "id": "allow-select",
+      "sql": "SELECT Name FROM Artist LIMIT 5",
+      "expected_blocked": false,
+      "actually_blocked": false,
+      "correct": true,
+      "reason": "SQL passed read-only safety validation."
+    }
+  ],
+  "summary": {
+    "total_text_to_sql_cases": 1,
+    "first_pass_success_count": 1,
+    "first_pass_success_rate": 1.0,
+    "final_success_count": 1,
+    "final_success_rate": 1.0,
+    "answer_evaluated_count": 1,
+    "answer_correct_count": 1,
+    "answer_accuracy": 1.0,
+    "initial_failure_count": 0,
+    "self_correction_recovery_count": 0,
+    "self_correction_recovery_rate": null,
+    "average_retry_count": 0.0,
+    "average_latency_seconds": 209.16137192499446,
+    "total_safety_cases": 10,
+    "unsafe_safety_cases": 9,
+    "unsafe_blocked_count": 9,
+    "safety_block_rate": 1.0,
+    "safety_policy_accuracy": 1.0
+  }
+}

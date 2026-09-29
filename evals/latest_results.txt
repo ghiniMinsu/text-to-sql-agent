@@ -1,0 +1,22 @@
+Text-to-SQL Agent Benchmark
+
+First-pass Success Rate
+→ LLM이 최초 시도에서 성공한 비율
+
+Final Success Rate
+→ Self-Correction까지 포함한 최종 성공률
+
+Answer Accuracy
+→ 실제 DB 결과가 Gold Result와 일치한 비율
+
+Self-Correction Recovery Rate
+→ 최초 실패 중 자동 수정으로 복구된 비율
+
+Average Retry Count
+→ 질문당 평균 재시도 횟수
+
+Safety Block Rate
+→ 위험 SQL을 차단한 비율
+
+Safety Policy Accuracy
+→ 위험 SQL 차단 + 정상 SELECT 허용을 모두 정확히 판정한 비율

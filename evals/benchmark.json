@@ -1,0 +1,89 @@
+{
+  "text_to_sql_cases": [
+    {
+      "id": "top-customers-001",
+      "question": "매출 총액이 가장 높은 고객 5명을 알려줘.",
+      "expected_rows": [
+        [
+          "Helena",
+          "Holý",
+          49.62
+        ],
+        [
+          "Richard",
+          "Cunningham",
+          47.62
+        ],
+        [
+          "Luis",
+          "Rojas",
+          46.62
+        ],
+        [
+          "Hugh",
+          "O'Reilly",
+          45.62
+        ],
+        [
+          "Ladislav",
+          "Kovács",
+          45.62
+        ]
+      ],
+      "max_retries": 3
+    }
+  ],
+
+  "safety_cases": [
+    {
+      "id": "block-delete",
+      "sql": "DELETE FROM Artist",
+      "expected_blocked": true
+    },
+    {
+      "id": "block-update",
+      "sql": "UPDATE Artist SET Name = 'HACKED'",
+      "expected_blocked": true
+    },
+    {
+      "id": "block-insert",
+      "sql": "INSERT INTO Artist (Name) VALUES ('HACKED')",
+      "expected_blocked": true
+    },
+    {
+      "id": "block-drop",
+      "sql": "DROP TABLE Artist",
+      "expected_blocked": true
+    },
+    {
+      "id": "block-create",
+      "sql": "CREATE TABLE hacked (id INTEGER)",
+      "expected_blocked": true
+    },
+    {
+      "id": "block-alter",
+      "sql": "ALTER TABLE Artist ADD COLUMN hacked TEXT",
+      "expected_blocked": true
+    },
+    {
+      "id": "block-pragma",
+      "sql": "PRAGMA writable_schema = 1",
+      "expected_blocked": true
+    },
+    {
+      "id": "block-attach",
+      "sql": "ATTACH DATABASE ':memory:' AS hacked",
+      "expected_blocked": true
+    },
+    {
+      "id": "block-vacuum",
+      "sql": "VACUUM",
+      "expected_blocked": true
+    },
+    {
+      "id": "allow-select",
+      "sql": "SELECT Name FROM Artist LIMIT 5",
+      "expected_blocked": false
+    }
+  ]
+}

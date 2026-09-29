@@ -1,0 +1,118 @@
+### 성공 테스트 CLI 명령어
+
+
+python - <<'PY'
+from src.harness.safety import validate_sql
+
+sql = """
+SELECT
+    Genre.Name,
+    COUNT(Track.TrackId) AS track_count
+FROM Genre
+JOIN Track
+    ON Genre.GenreId = Track.GenreId
+GROUP BY Genre.Name
+ORDER BY track_count DESC
+LIMIT 5
+"""
+
+result = validate_sql(sql)
+
+print("safe:", result.is_safe)
+print("reason:", result.reason)
+print("normalized:", result.normalized_sql)
+PY
+
+------------------------------------------------
+결과 정상
+
+safe: True
+------------------------------------------------
+
+
+
+
+
+위험 sql CLI 테스트
+
+python - <<'PY'
+from src.harness.safety import validate_sql
+
+sql = """
+DELETE FROM Customer
+"""
+
+result = validate_sql(sql)
+
+print("safe:", result.is_safe)
+print("reason:", result.reason)
+PY
+
+------------------------------------------------
+safe: False
+
+정상
+------------------------------------------------
+
+
+
+업무 쿼리 테스트
+
+python - <<'PY'
+from src.harness.database import SQLiteReadOnlyExecutor
+from src.harness.safety import assert_safe_sql
+
+db = SQLiteReadOnlyExecutor("data/chinook.db")
+
+raw_sql = """
+SELECT
+    ArtistId,
+    Name
+FROM Artist
+ORDER BY ArtistId
+LIMIT 5
+"""
+
+safe_sql = assert_safe_sql(raw_sql)
+
+result = db.execute(safe_sql)
+
+print("columns:", result.columns)
+print("rows:", result.rows)
+PY
+
+
+
+-----
+포트폴리오에서는 Self-Correction이 실제 작동했다는 증거가 필요합니다. 그래서 단위 테스트에서 이미 의도적으
+SELECT customer_name
+FROM customers
+
+no such column: customer_nam
+
+
+Attempt #0
+LLM
+ ↓
+잘못된 SQL
+ ↓
+SQLite error
+ ↓
+error_message 저장
+ ↓
+route_after_validation()
+ ↓
+retry
+ ↓
+retry_count = 1
+ ↓
+LLM
+ ↑
+"no such column: customer_name"
+피드백 전달
+ ↓
+수정된 SQL
+ ↓
+실행
+ ↓
+success
