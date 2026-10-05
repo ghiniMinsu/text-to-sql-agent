@@ -1,8 +1,12 @@
 {
   "text_to_sql_cases": [
     {
-      "id": "top-customers-001",
-      "question": "매출 총액이 가장 높은 고객 5명을 알려줘.",
+      "id": "customer-top-spend-001",
+      "category": "aggregation",
+      "difficulty": "medium",
+      "question": "총 구매 금액이 가장 높은 고객 5명의 이름, 성, 총 구매 금액을 내림차순으로 알려줘.",
+      "gold_sql": "SELECT c.FirstName, c.LastName, ROUND(SUM(i.Total), 2) AS TotalSpent FROM Customer c JOIN Invoice i ON c.CustomerId = i.CustomerId GROUP BY c.CustomerId, c.FirstName, c.LastName ORDER BY TotalSpent DESC, c.CustomerId ASC LIMIT 5",
+      "max_retries": 3,
       "expected_rows": [
         [
           "Helena",
@@ -20,20 +24,947 @@
           46.62
         ],
         [
+          "Ladislav",
+          "Kovács",
+          45.62
+        ],
+        [
           "Hugh",
           "O'Reilly",
           45.62
+        ]
+      ]
+    },
+    {
+      "id": "country-revenue-002",
+      "category": "aggregation",
+      "difficulty": "medium",
+      "question": "총 매출이 높은 국가 5개와 각 국가의 총 매출을 내림차순으로 알려줘.",
+      "gold_sql": "SELECT BillingCountry, ROUND(SUM(Total), 2) AS Revenue FROM Invoice GROUP BY BillingCountry ORDER BY Revenue DESC, BillingCountry ASC LIMIT 5",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "USA",
+          523.06
+        ],
+        [
+          "Canada",
+          303.96
+        ],
+        [
+          "France",
+          195.1
+        ],
+        [
+          "Brazil",
+          190.1
+        ],
+        [
+          "Germany",
+          156.48
+        ]
+      ]
+    },
+    {
+      "id": "track-sales-003",
+      "category": "join",
+      "difficulty": "medium",
+      "question": "판매 수량이 가장 많은 트랙 10개의 트랙명과 총 판매 수량을 알려줘.",
+      "gold_sql": "SELECT t.Name, SUM(il.Quantity) AS QuantitySold FROM InvoiceLine il JOIN Track t ON il.TrackId = t.TrackId GROUP BY t.TrackId, t.Name ORDER BY QuantitySold DESC, t.TrackId ASC LIMIT 10",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Balls to the Wall",
+          2
+        ],
+        [
+          "Inject The Venom",
+          2
+        ],
+        [
+          "Snowballed",
+          2
+        ],
+        [
+          "Overdose",
+          2
+        ],
+        [
+          "Deuces Are Wild",
+          2
+        ],
+        [
+          "Not The Doctor",
+          2
+        ],
+        [
+          "Por Causa De Você",
+          2
+        ],
+        [
+          "Welcome Home (Sanitarium)",
+          2
+        ],
+        [
+          "Snowblind",
+          2
+        ],
+        [
+          "Cornucopia",
+          2
+        ]
+      ]
+    },
+    {
+      "id": "genre-track-count-004",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "question": "보유 트랙 수가 가장 많은 장르 10개와 트랙 수를 알려줘.",
+      "gold_sql": "SELECT g.Name, COUNT(t.TrackId) AS TrackCount FROM Genre g JOIN Track t ON g.GenreId = t.GenreId GROUP BY g.GenreId, g.Name ORDER BY TrackCount DESC, g.GenreId ASC LIMIT 10",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Rock",
+          1297
+        ],
+        [
+          "Latin",
+          579
+        ],
+        [
+          "Metal",
+          374
+        ],
+        [
+          "Alternative & Punk",
+          332
+        ],
+        [
+          "Jazz",
+          130
+        ],
+        [
+          "TV Shows",
+          93
+        ],
+        [
+          "Blues",
+          81
+        ],
+        [
+          "Classical",
+          74
+        ],
+        [
+          "Drama",
+          64
+        ],
+        [
+          "R&B/Soul",
+          61
+        ]
+      ]
+    },
+    {
+      "id": "artist-album-count-005",
+      "category": "join",
+      "difficulty": "easy",
+      "question": "앨범 수가 가장 많은 아티스트 10명의 이름과 앨범 수를 알려줘.",
+      "gold_sql": "SELECT ar.Name, COUNT(al.AlbumId) AS AlbumCount FROM Artist ar JOIN Album al ON ar.ArtistId = al.ArtistId GROUP BY ar.ArtistId, ar.Name ORDER BY AlbumCount DESC, ar.ArtistId ASC LIMIT 10",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Iron Maiden",
+          21
+        ],
+        [
+          "Led Zeppelin",
+          14
+        ],
+        [
+          "Deep Purple",
+          11
+        ],
+        [
+          "Metallica",
+          10
+        ],
+        [
+          "U2",
+          10
+        ],
+        [
+          "Ozzy Osbourne",
+          6
+        ],
+        [
+          "Pearl Jam",
+          5
+        ],
+        [
+          "Various Artists",
+          4
+        ],
+        [
+          "Faith No More",
+          4
+        ],
+        [
+          "Foo Fighters",
+          4
+        ]
+      ]
+    },
+    {
+      "id": "support-rep-revenue-006",
+      "category": "multi_join",
+      "difficulty": "hard",
+      "question": "고객 지원 직원별 담당 고객 매출을 계산해서 직원 이름, 성, 총 매출을 높은 순으로 알려줘.",
+      "gold_sql": "SELECT e.FirstName, e.LastName, ROUND(SUM(i.Total), 2) AS Revenue FROM Employee e JOIN Customer c ON e.EmployeeId = c.SupportRepId JOIN Invoice i ON c.CustomerId = i.CustomerId GROUP BY e.EmployeeId, e.FirstName, e.LastName ORDER BY Revenue DESC, e.EmployeeId ASC",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Jane",
+          "Peacock",
+          833.04
+        ],
+        [
+          "Margaret",
+          "Park",
+          775.4
+        ],
+        [
+          "Steve",
+          "Johnson",
+          720.16
+        ]
+      ]
+    },
+    {
+      "id": "average-invoice-007",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "question": "전체 주문의 평균 결제 금액을 소수점 둘째 자리까지 알려줘.",
+      "gold_sql": "SELECT ROUND(AVG(Total), 2) AS AverageInvoiceTotal FROM Invoice",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          5.65
+        ]
+      ]
+    },
+    {
+      "id": "customer-country-count-008",
+      "category": "aggregation",
+      "difficulty": "easy",
+      "question": "고객 수가 가장 많은 국가 10개와 고객 수를 알려줘.",
+      "gold_sql": "SELECT Country, COUNT(CustomerId) AS CustomerCount FROM Customer GROUP BY Country ORDER BY CustomerCount DESC, Country ASC LIMIT 10",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "USA",
+          13
+        ],
+        [
+          "Canada",
+          8
+        ],
+        [
+          "Brazil",
+          5
+        ],
+        [
+          "France",
+          5
+        ],
+        [
+          "Germany",
+          4
+        ],
+        [
+          "United Kingdom",
+          3
+        ],
+        [
+          "Czech Republic",
+          2
+        ],
+        [
+          "India",
+          2
+        ],
+        [
+          "Portugal",
+          2
+        ],
+        [
+          "Argentina",
+          1
+        ]
+      ]
+    },
+    {
+      "id": "longest-tracks-009",
+      "category": "ordering",
+      "difficulty": "easy",
+      "question": "재생 시간이 가장 긴 트랙 5개의 트랙명과 재생 시간 밀리초를 알려줘.",
+      "gold_sql": "SELECT Name, Milliseconds FROM Track ORDER BY Milliseconds DESC, TrackId ASC LIMIT 5",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Occupation / Precipice",
+          5286953
+        ],
+        [
+          "Through a Looking Glass",
+          5088838
+        ],
+        [
+          "Greetings from Earth, Pt. 1",
+          2960293
+        ],
+        [
+          "The Man With Nine Lives",
+          2956998
+        ],
+        [
+          "Battlestar Galactica, Pt. 2",
+          2956081
+        ]
+      ]
+    },
+    {
+      "id": "expensive-tracks-010",
+      "category": "ordering",
+      "difficulty": "easy",
+      "question": "가격이 가장 높은 트랙 10개의 트랙명과 단가를 알려줘.",
+      "gold_sql": "SELECT Name, UnitPrice FROM Track ORDER BY UnitPrice DESC, TrackId ASC LIMIT 10",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Battlestar Galactica: The Story So Far",
+          1.99
+        ],
+        [
+          "Occupation / Precipice",
+          1.99
+        ],
+        [
+          "Exodus, Pt. 1",
+          1.99
+        ],
+        [
+          "Exodus, Pt. 2",
+          1.99
+        ],
+        [
+          "Collaborators",
+          1.99
+        ],
+        [
+          "Torn",
+          1.99
+        ],
+        [
+          "A Measure of Salvation",
+          1.99
+        ],
+        [
+          "Hero",
+          1.99
+        ],
+        [
+          "Unfinished Business",
+          1.99
+        ],
+        [
+          "The Passage",
+          1.99
+        ]
+      ]
+    },
+    {
+      "id": "customer-invoice-count-011",
+      "category": "join",
+      "difficulty": "medium",
+      "question": "주문 횟수가 가장 많은 고객 5명의 이름, 성, 주문 횟수를 알려줘.",
+      "gold_sql": "SELECT c.FirstName, c.LastName, COUNT(i.InvoiceId) AS InvoiceCount FROM Customer c JOIN Invoice i ON c.CustomerId = i.CustomerId GROUP BY c.CustomerId, c.FirstName, c.LastName ORDER BY InvoiceCount DESC, c.CustomerId ASC LIMIT 5",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Luís",
+          "Gonçalves",
+          7
+        ],
+        [
+          "Leonie",
+          "Köhler",
+          7
+        ],
+        [
+          "François",
+          "Tremblay",
+          7
+        ],
+        [
+          "Bjørn",
+          "Hansen",
+          7
+        ],
+        [
+          "František",
+          "Wichterlová",
+          7
+        ]
+      ]
+    },
+    {
+      "id": "monthly-revenue-012",
+      "category": "date",
+      "difficulty": "medium",
+      "question": "월별 총 매출을 연월과 매출 금액으로 시간순으로 알려줘.",
+      "gold_sql": "SELECT strftime('%Y-%m', InvoiceDate) AS YearMonth, ROUND(SUM(Total), 2) AS Revenue FROM Invoice GROUP BY YearMonth ORDER BY YearMonth ASC",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "2009-01",
+          35.64
+        ],
+        [
+          "2009-02",
+          37.62
+        ],
+        [
+          "2009-03",
+          37.62
+        ],
+        [
+          "2009-04",
+          37.62
+        ],
+        [
+          "2009-05",
+          37.62
+        ],
+        [
+          "2009-06",
+          37.62
+        ],
+        [
+          "2009-07",
+          37.62
+        ],
+        [
+          "2009-08",
+          37.62
+        ],
+        [
+          "2009-09",
+          37.62
+        ],
+        [
+          "2009-10",
+          37.62
+        ],
+        [
+          "2009-11",
+          37.62
+        ],
+        [
+          "2009-12",
+          37.62
+        ],
+        [
+          "2010-01",
+          52.62
+        ],
+        [
+          "2010-02",
+          46.62
+        ],
+        [
+          "2010-03",
+          44.62
+        ],
+        [
+          "2010-04",
+          37.62
+        ],
+        [
+          "2010-05",
+          37.62
+        ],
+        [
+          "2010-06",
+          37.62
+        ],
+        [
+          "2010-07",
+          37.62
+        ],
+        [
+          "2010-08",
+          37.62
+        ],
+        [
+          "2010-09",
+          36.63
+        ],
+        [
+          "2010-10",
+          37.62
+        ],
+        [
+          "2010-11",
+          37.62
+        ],
+        [
+          "2010-12",
+          37.62
+        ],
+        [
+          "2011-01",
+          37.62
+        ],
+        [
+          "2011-02",
+          37.62
+        ],
+        [
+          "2011-03",
+          37.62
+        ],
+        [
+          "2011-04",
+          51.62
+        ],
+        [
+          "2011-05",
+          42.62
+        ],
+        [
+          "2011-06",
+          50.62
+        ],
+        [
+          "2011-07",
+          37.62
+        ],
+        [
+          "2011-08",
+          37.62
+        ],
+        [
+          "2011-09",
+          37.62
+        ],
+        [
+          "2011-10",
+          37.62
+        ],
+        [
+          "2011-11",
+          23.76
+        ],
+        [
+          "2011-12",
+          37.62
+        ],
+        [
+          "2012-01",
+          37.62
+        ],
+        [
+          "2012-02",
+          37.62
+        ],
+        [
+          "2012-03",
+          37.62
+        ],
+        [
+          "2012-04",
+          37.62
+        ],
+        [
+          "2012-05",
+          37.62
+        ],
+        [
+          "2012-06",
+          37.62
+        ],
+        [
+          "2012-07",
+          39.62
+        ],
+        [
+          "2012-08",
+          47.62
+        ],
+        [
+          "2012-09",
+          46.71
+        ],
+        [
+          "2012-10",
+          42.62
+        ],
+        [
+          "2012-11",
+          37.62
+        ],
+        [
+          "2012-12",
+          37.62
+        ],
+        [
+          "2013-01",
+          37.62
+        ],
+        [
+          "2013-02",
+          27.72
+        ],
+        [
+          "2013-03",
+          37.62
+        ],
+        [
+          "2013-04",
+          33.66
+        ],
+        [
+          "2013-05",
+          37.62
+        ],
+        [
+          "2013-06",
+          37.62
+        ],
+        [
+          "2013-07",
+          37.62
+        ],
+        [
+          "2013-08",
+          37.62
+        ],
+        [
+          "2013-09",
+          37.62
+        ],
+        [
+          "2013-10",
+          37.62
+        ],
+        [
+          "2013-11",
+          49.62
+        ],
+        [
+          "2013-12",
+          38.62
+        ]
+      ]
+    },
+    {
+      "id": "album-track-count-013",
+      "category": "join",
+      "difficulty": "medium",
+      "question": "트랙 수가 가장 많은 앨범 10개의 앨범명과 트랙 수를 알려줘.",
+      "gold_sql": "SELECT al.Title, COUNT(t.TrackId) AS TrackCount FROM Album al JOIN Track t ON al.AlbumId = t.AlbumId GROUP BY al.AlbumId, al.Title ORDER BY TrackCount DESC, al.AlbumId ASC LIMIT 10",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Greatest Hits",
+          57
+        ],
+        [
+          "Minha Historia",
+          34
+        ],
+        [
+          "Unplugged",
+          30
+        ],
+        [
+          "Lost, Season 3",
+          26
+        ],
+        [
+          "Lost, Season 1",
+          25
+        ],
+        [
+          "The Office, Season 3",
+          25
+        ],
+        [
+          "My Way: The Best Of Frank Sinatra [Disc 1]",
+          24
+        ],
+        [
+          "Lost, Season 2",
+          24
+        ],
+        [
+          "Battlestar Galactica (Classic), Season 1",
+          24
+        ],
+        [
+          "Afrociberdelia",
+          23
+        ]
+      ]
+    },
+    {
+      "id": "unsold-track-count-014",
+      "category": "anti_join",
+      "difficulty": "hard",
+      "question": "한 번도 판매되지 않은 트랙의 개수를 알려줘.",
+      "gold_sql": "SELECT COUNT(*) AS UnsoldTrackCount FROM Track t LEFT JOIN InvoiceLine il ON t.TrackId = il.TrackId WHERE il.InvoiceLineId IS NULL",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          1519
+        ]
+      ]
+    },
+    {
+      "id": "composer-count-015",
+      "category": "distinct",
+      "difficulty": "easy",
+      "question": "작곡가 정보가 등록된 서로 다른 작곡가의 수를 알려줘.",
+      "gold_sql": "SELECT COUNT(DISTINCT Composer) AS ComposerCount FROM Track WHERE Composer IS NOT NULL AND TRIM(Composer) <> ''",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          852
+        ]
+      ]
+    },
+    {
+      "id": "genre-sales-revenue-016",
+      "category": "multi_join",
+      "difficulty": "hard",
+      "question": "판매 매출이 가장 높은 장르 10개의 장르명과 판매 매출을 알려줘.",
+      "gold_sql": "SELECT g.Name, ROUND(SUM(il.UnitPrice * il.Quantity), 2) AS Revenue FROM InvoiceLine il JOIN Track t ON il.TrackId = t.TrackId JOIN Genre g ON t.GenreId = g.GenreId GROUP BY g.GenreId, g.Name ORDER BY Revenue DESC, g.GenreId ASC LIMIT 10",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Rock",
+          826.65
+        ],
+        [
+          "Latin",
+          382.14
+        ],
+        [
+          "Metal",
+          261.36
+        ],
+        [
+          "Alternative & Punk",
+          241.56
+        ],
+        [
+          "TV Shows",
+          93.53
+        ],
+        [
+          "Jazz",
+          79.2
+        ],
+        [
+          "Blues",
+          60.39
+        ],
+        [
+          "Drama",
+          57.71
+        ],
+        [
+          "R&B/Soul",
+          40.59
+        ],
+        [
+          "Classical",
+          40.59
+        ]
+      ]
+    },
+    {
+      "id": "artist-sales-revenue-017",
+      "category": "multi_join",
+      "difficulty": "hard",
+      "question": "트랙 판매 매출이 가장 높은 아티스트 10명의 아티스트명과 판매 매출을 알려줘.",
+      "gold_sql": "SELECT ar.Name, ROUND(SUM(il.UnitPrice * il.Quantity), 2) AS Revenue FROM InvoiceLine il JOIN Track t ON il.TrackId = t.TrackId JOIN Album al ON t.AlbumId = al.AlbumId JOIN Artist ar ON al.ArtistId = ar.ArtistId GROUP BY ar.ArtistId, ar.Name ORDER BY Revenue DESC, ar.ArtistId ASC LIMIT 10",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Iron Maiden",
+          138.6
+        ],
+        [
+          "U2",
+          105.93
+        ],
+        [
+          "Metallica",
+          90.09
+        ],
+        [
+          "Led Zeppelin",
+          86.13
+        ],
+        [
+          "Lost",
+          81.59
+        ],
+        [
+          "The Office",
+          49.75
+        ],
+        [
+          "Os Paralamas Do Sucesso",
+          44.55
+        ],
+        [
+          "Deep Purple",
+          43.56
+        ],
+        [
+          "Faith No More",
+          41.58
+        ],
+        [
+          "Eric Clapton",
+          39.6
+        ]
+      ]
+    },
+    {
+      "id": "customer-average-invoice-018",
+      "category": "join",
+      "difficulty": "medium",
+      "question": "평균 주문 금액이 가장 높은 고객 5명의 이름, 성, 평균 주문 금액을 알려줘.",
+      "gold_sql": "SELECT c.FirstName, c.LastName, ROUND(AVG(i.Total), 2) AS AverageInvoice FROM Customer c JOIN Invoice i ON c.CustomerId = i.CustomerId GROUP BY c.CustomerId, c.FirstName, c.LastName ORDER BY AverageInvoice DESC, c.CustomerId ASC LIMIT 5",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Helena",
+          "Holý",
+          7.09
+        ],
+        [
+          "Richard",
+          "Cunningham",
+          6.8
+        ],
+        [
+          "Luis",
+          "Rojas",
+          6.66
         ],
         [
           "Ladislav",
           "Kovács",
-          45.62
+          6.52
+        ],
+        [
+          "Hugh",
+          "O'Reilly",
+          6.52
         ]
-      ],
-      "max_retries": 3
+      ]
+    },
+    {
+      "id": "largest-invoices-019",
+      "category": "join",
+      "difficulty": "medium",
+      "question": "결제 금액이 가장 큰 주문 5건에 대해 고객 이름, 성, 주문 금액을 알려줘.",
+      "gold_sql": "SELECT c.FirstName, c.LastName, i.Total FROM Invoice i JOIN Customer c ON i.CustomerId = c.CustomerId ORDER BY i.Total DESC, i.InvoiceId ASC LIMIT 5",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Helena",
+          "Holý",
+          25.86
+        ],
+        [
+          "Richard",
+          "Cunningham",
+          23.86
+        ],
+        [
+          "Ladislav",
+          "Kovács",
+          21.86
+        ],
+        [
+          "Hugh",
+          "O'Reilly",
+          21.86
+        ],
+        [
+          "Astrid",
+          "Gruber",
+          18.86
+        ]
+      ]
+    },
+    {
+      "id": "country-average-invoice-020",
+      "category": "aggregation",
+      "difficulty": "medium",
+      "question": "평균 주문 금액이 가장 높은 국가 10개와 평균 주문 금액을 소수점 둘째 자리까지 알려줘.",
+      "gold_sql": "SELECT BillingCountry, ROUND(AVG(Total), 2) AS AverageInvoice FROM Invoice GROUP BY BillingCountry ORDER BY AverageInvoice DESC, BillingCountry ASC LIMIT 10",
+      "max_retries": 3,
+      "expected_rows": [
+        [
+          "Chile",
+          6.66
+        ],
+        [
+          "Hungary",
+          6.52
+        ],
+        [
+          "Ireland",
+          6.52
+        ],
+        [
+          "Czech Republic",
+          6.45
+        ],
+        [
+          "Austria",
+          6.09
+        ],
+        [
+          "Finland",
+          5.95
+        ],
+        [
+          "Netherlands",
+          5.8
+        ],
+        [
+          "India",
+          5.79
+        ],
+        [
+          "USA",
+          5.75
+        ],
+        [
+          "Norway",
+          5.66
+        ]
+      ]
     }
   ],
-
   "safety_cases": [
     {
       "id": "block-delete",
@@ -84,6 +1015,21 @@
       "id": "allow-select",
       "sql": "SELECT Name FROM Artist LIMIT 5",
       "expected_blocked": false
+    },
+    {
+      "id": "allow-join",
+      "sql": "SELECT Album.Title, Artist.Name FROM Album JOIN Artist ON Album.ArtistId = Artist.ArtistId LIMIT 5",
+      "expected_blocked": false
+    },
+    {
+      "id": "allow-cte",
+      "sql": "WITH x AS (SELECT ArtistId FROM Artist) SELECT * FROM x LIMIT 5",
+      "expected_blocked": false
+    },
+    {
+      "id": "block-multi-statement",
+      "sql": "SELECT * FROM Artist; DELETE FROM Artist;",
+      "expected_blocked": true
     }
   ]
 }
